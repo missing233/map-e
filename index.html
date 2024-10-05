@@ -1,19 +1,11 @@
 <!DOCTYPE html>
 <html lang="ja">
-
 <head>
-  <meta charset="Shift_JIS">
+  <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MAP-Eã‚«ãƒ«ã‚­ãƒ¥ãƒ¬ãƒ¼ã‚¿ãƒ¼</title>
   <script type="text/javascript">
     function calc() {
-      /*
-      var ruleprefix36 = {
-        0x240d000f0000: [219, 104, 128],
-        0x240d000f1000: [219, 104, 144],
-        0x240d000f2000: [219, 104, 160],
-        0x240d000f3000: [219, 104, 176]
-      };
-      */
       var ruleprefix31 = {
         0x240b0010: [106, 72],
         0x240b0012: [14, 8],
@@ -21,6 +13,16 @@
         0x240b0252: [14, 12],
         0x24047a80: [133, 200],
         0x24047a84: [133, 206]
+      };
+      var ruleprefix36 = {
+        0x240d000f00: [219, 104, 128],
+        0x240d000f10: [219, 104, 144],
+        0x240d000f20: [219, 104, 160],
+        0x240d000f30: [219, 104, 176],
+        0x240d000fa0: [219, 104, 138],
+        0x240d000fd0: [219, 104, 141]
+        
+        // WIP: need more info about nuro
       };
       var ruleprefix38 = {
         0x24047a8200: [125, 196, 208],
@@ -714,7 +716,7 @@
       var prefix = document.getElementById("prefix").value;
       var field = prefix.replace("::", ":0::").match(/([0-9a-f]{1,4}):([0-9a-f]{1,4}):([0-9a-f]{1,4}):([0-9a-f]{0,4})/i);
       if (!field) {
-        alert("ƒvƒŒƒtƒBƒbƒNƒX‚ğ”F¯‚Å‚«‚Ü‚¹‚ñB");
+        alert("ãƒ—ãƒ¬ãƒ•ã‚£ãƒƒã‚¯ã‚¹ã‚’èªè­˜ã§ãã¾ã›ã‚“ã€‚");
         clear();
         return;
       }
@@ -724,6 +726,7 @@
       }
       var octet;
       var prefix31 = hextet[0] * 0x10000 + (hextet[1] & 0xfffe);
+      var prefix36 = hextet[0] * 0x1000000 + hextet[1] * 0x100 + ((hextet[2] & 0xff00) >> 4);
       var prefix38 = hextet[0] * 0x1000000 + hextet[1] * 0x100 + ((hextet[2] & 0xfc00) >> 8);
       var offset = 6;
       var rfc = false;
@@ -734,6 +737,14 @@
         var ipaddr = ruleprefix38[prefix38].concat(0);
         var ip6prefixlen = 38;
         var psidlen = 8;
+        offset = 4;
+      } else if (ruleprefix36[prefix36]) {
+        octet = ruleprefix36[prefix36].concat();
+        octet[2] |= (hextet[2] & 0x0f00) >> 8;
+        octet[3] = hextet[2] & 0x00ff;
+        ipaddr = ruleprefix36[prefix36].concat(0);
+        ip6prefixlen = 36;
+        psidlen = 8;
         offset = 4;
       } else if (ruleprefix31[prefix31]) {
         octet = ruleprefix31[prefix31].concat();
@@ -752,7 +763,7 @@
         var ip6prefixlen = 38;
         var psidlen = 6;
       } else {
-        alert("–¢‘Î‰‚ÌƒvƒŒƒtƒBƒbƒNƒX");
+        alert("æœªå¯¾å¿œã®ãƒ—ãƒ¬ãƒ•ã‚£ãƒƒã‚¯ã‚¹");
         clear();
         return;
       }
@@ -776,7 +787,7 @@
       document.getElementById("psid").value = psid;
 
       if (hextet[3] & 0xff) {
-        alert("“ü—Í’l‚Æ CE ‚Æ‚Å /64 ‚ªˆÙ‚È‚é");
+        alert("å…¥åŠ›å€¤ã¨ CE ã¨ã§ /64 ãŒç•°ãªã‚‹");
       }
       hextet[3] = hextet[3] & 0xff00;
       if (rfc) {
@@ -803,6 +814,10 @@
         hextet2[0] = hextet[0];
         hextet2[1] = hextet[1];
         hextet2[2] = hextet[2] & 0xfc00;
+      } else if (ip6prefixlen == 36) {
+        hextet2[0] = hextet[0];
+        hextet2[1] = hextet[1];
+        hextet2[2] = (hextet[2] & 0x0f00) >> 8;
       } else if (ip6prefixlen == 31) {
         hextet2[0] = hextet[0];
         hextet2[1] = hextet[1] & 0xfffe;
@@ -824,6 +839,8 @@
         var peeraddr = "2001:260:700:1::1:276";
       } else if ((prefix31 >= 0x240b0010 && prefix31 < 0x240b0014) || (prefix31 >= 0x240b0250 && prefix31 < 0x240b0254)) {
         var peeraddr = "2404:9200:225:100::64";
+      } else if (ruleprefix36[prefix36]) {
+        var peeraddr = "2001:3b8:200:ff9::1";
       } else if (ruleprefix38_20[prefix38]) {
         var peeraddr = "2001:380:a120::9";
       } else {
@@ -883,51 +900,14 @@
       });
      */
   </script>
-  <style type="text/css">
-    textarea {
-      vertical-align: middle;
-    }
-
-    #notice {
-      color: red;
-      font-weight: bold;
-    }
-
-    body {
-      padding-top: 65px;
-    }
-
-    a:not([href*="web.fc2.com"]) {
-      display: none;
-    }
-
-    .at {
-      font-size: 14px;
-      line-height: 1.42857143;
-      color: #333;
-      padding-right: 7px;
-      padding-left: 7px;
-    }
-
-    .at code {
-      font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
-    }
-
-    p.syntax {
-      margin-left: 4em;
-      text-indent: -4em;
-      margin-top: 0.2em;
-      margin-bottom: 0.5em;
-    }
-  </style>
 </head>
 
 <body>
-  <noscript id="notice">JavaScript ‚ª•K—v‚Å‚·B</noscript>
+  <noscript id="notice">JavaScript ãŒå¿…è¦ã§ã™ã€‚</noscript>
   <form action="#notice" onsubmit="calc(); return false;">
-    <label for="prefix">IPv6 ƒvƒŒƒtƒBƒbƒNƒX‚©ƒAƒhƒŒƒX‚ğ“ü—Í:</label>
+    <label for="prefix">IPv6 ãƒ—ãƒ¬ãƒ•ã‚£ãƒƒã‚¯ã‚¹ã‹ã‚¢ãƒ‰ãƒ¬ã‚¹ã‚’å…¥åŠ›:</label>
     <input id="prefix" size="42" placeholder="240b:12:3456:7800::">
-    <input type="submit" value="ŒvZ">
+    <input type="submit" value="è¨ˆç®—">
   </form>
   <ul>
     <li>
@@ -935,20 +915,20 @@
       <input id="ce" size="39" readonly="readonly">
     </li>
     <li>
-      <label for="ipv4">IPv4 ƒAƒhƒŒƒX:</label>
+      <label for="ipv4">IPv4 ã‚¢ãƒ‰ãƒ¬ã‚¹:</label>
       <input id="ipv4" readonly="readonly">
     </li>
     <li>
-      <label for="port">ƒ|[ƒg”Ô†:</label>
+      <label for="port">ãƒãƒ¼ãƒˆç•ªå·:</label>
       <textarea id="port" cols="36" rows="5" readonly="readonly"></textarea>
     </li>
     <li>
       <label for="psid">PSID:</label>
-      <input id="psid" size="3" readonly="readonly">(10i)
+      <input id="psid" size="3" readonly="readonly">(10é€²)
     </li>
   </ul>
   <hr>
-  <p>’: –{“–‚Ì’l‚Æ‚Íˆá‚¤ê‡‚ª‚ ‚è‚Ü‚·B</p>
+  <p>æ³¨: æœ¬å½“ã®å€¤ã¨ã¯é•ã†å ´åˆãŒã‚ã‚Šã¾ã™ã€‚</p>
   <pre><code><span id="peeraddr"></span>option ipaddr <span id="ipaddr"></span>
 option ip4prefixlen <span id="ip4prefixlen"></span>
 option ip6prefix <span id="ip6prefix"></span>
@@ -967,6 +947,8 @@ option offset <span id="offset"></span></code></pre>
     </p>
     <hr>
   </div>
+  <p><a href="https://github.com/missing233/map-e" target="_blank" style="text-decoration: none;"><img src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" alt="GitHub" style="width:20px; vertical-align:middle; margin-right:5px;">GitHub</a> |
+    <a href="https://missing233.com/" target="_blank" style="text-decoration: none;">HP</a></p>
   <!-- <hr>
     <pre>The length of the PSID bit field within EA bits is: o - p
 = (EA-bits length) - (IPv4 suffix bits)
@@ -981,5 +963,4 @@ Example:
 
 (EA-bits length) - (IPv4 <strong>prefix</strong> length) is wrong if (IPv4 <strong>prefix</strong> length) != <strong>16</strong>.</pre> -->
 </body>
-
 </html>
