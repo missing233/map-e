@@ -1,7 +1,11 @@
 # Japan MAP-E Calculator
 
-Original website: [https://ipv4.web.fc2.com/map-e.html](https://ipv4.web.fc2.com/map-e.html)
+## <a href="https://missing233.github.io/map-e/" target="_blank">Online Preview</a>
 
-Thanks to: [@site-u2023](https://github.com/site-u2023)
+---
 
-Online preview: [https://missing233.github.io/map-e/](https://missing233.github.io/map-e/)
+### Credits
+
+- <a href="https://ipv4.web.fc2.com/map-e.html" target="_blank">Original website</a>
+- Thanks to <a href="https://github.com/site-u2023" target="_blank">@site-u2023</a>
+
