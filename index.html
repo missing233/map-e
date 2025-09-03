@@ -7,7 +7,360 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>MAP-Eカルキュレーター</title>
+  <meta name="theme-color" content="#0f172a">
+  <title>MAP-E カルキュレーター</title>
+
+  <style>
+    :root {
+      --bg: #0b1020;
+      --bg-soft: #11162a;
+      --card: #0f172a;
+      --card-2: #111a33;
+      --txt: #e5eefc;
+      --txt-dim: #a8b3cf;
+      --muted: #6b7aa6;
+      --primary: #6aa6ff;
+      --primary-2: #a6c8ff;
+      --ring: rgba(106, 166, 255, .45);
+      --ok: #22c55e;
+      --warn: #f59e0b;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Noto Sans, "Helvetica Neue", Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      --radius: 14px;
+      --shadow: 0 10px 35px rgba(2, 6, 23, .45);
+      --border: 1px solid rgba(148, 163, 184, .15);
+      --code-bg: #0b1324;
+    }
+
+    @media (prefers-color-scheme: light) {
+      :root {
+        --bg: #f6f8ff;
+        --bg-soft: #eef2ff;
+        --card: #ffffff;
+        --card-2: #f8faff;
+        --txt: #0b1324;
+        --txt-dim: #44506a;
+        --muted: #6b7590;
+        --primary: #1f6fff;
+        --primary-2: #3b82f6;
+        --ring: rgba(59, 130, 246, .35);
+        --shadow: 0 10px 30px rgba(2, 6, 23, .08);
+        --code-bg: #0f172a;
+        --border: 1px solid rgba(2, 6, 23, .08);
+      }
+    }
+
+    * {
+      box-sizing: border-box
+    }
+
+    html,
+    body {
+      height: 100%
+    }
+
+    body {
+      margin: 0;
+      font-family: var(--sans);
+      color: var(--txt);
+      background:
+        radial-gradient(1000px 500px at 10% -10%, rgba(49, 98, 255, .18), transparent 40%),
+        radial-gradient(1200px 600px at 90% 10%, rgba(0, 190, 255, .12), transparent 40%),
+        var(--bg);
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 32px auto;
+      padding: 0 20px;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 22px;
+    }
+
+    .title {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .logo {
+      width: 38px;
+      height: 38px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #3b82f6, #06b6d4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: bold;
+      font-family: var(--sans);
+      font-size: 18px;
+    }
+
+
+    h1 {
+      font-size: clamp(22px, 2.6vw, 30px);
+      margin: 0;
+      letter-spacing: .3px
+    }
+
+    .subtitle {
+      margin: 2px 0 0;
+      color: var(--txt-dim);
+      font-size: 14px
+    }
+
+    .grid {
+      display: grid;
+      gap: 18px;
+      grid-template-columns: repeat(12, 1fr);
+    }
+
+    .card {
+      background: linear-gradient(180deg, var(--card), var(--card-2));
+      border-radius: var(--radius);
+      border: var(--border);
+      box-shadow: var(--shadow);
+      padding: 18px;
+    }
+
+    .card h2 {
+      font-size: 16px;
+      margin: 2px 0 14px;
+      color: var(--primary-2);
+      letter-spacing: .4px
+    }
+
+    .row .grow {
+      flex: 1 1 auto;
+      min-width: 0;
+    }
+
+    .ispwrap {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      width: 200px;
+      flex: 0 0 200px;
+      height: 36px;
+    }
+
+    .ispwrap .btn {
+      width: 88px;
+      height: 36px;
+      font-size: 0.85rem;
+      padding: 0 10px;
+    }
+
+    #ispSelect {
+      flex: 1 1 auto;
+      min-width: 90px;
+      height: 36px;
+      border-radius: 10px;
+      padding: 6px 10px;
+      border: 1px solid rgba(148, 163, 184, .2);
+      background: rgba(255, 255, 255, .03);
+      color: var(--txt);
+      outline: none;
+
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .18s ease;
+    }
+
+    #ispSelect.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+
+
+    .inputs {
+      grid-column: span 12;
+    }
+
+    .results {
+      grid-column: span 12;
+    }
+
+    .code {
+      grid-column: span 12;
+    }
+
+    @media (min-width: 900px) {
+      .inputs {
+        grid-column: span 5;
+      }
+
+      .results {
+        grid-column: span 7;
+      }
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .field label {
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .row {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .grow {
+      flex: 1 1 auto;
+    }
+
+    input[type="text"],
+    input[type="search"],
+    input:not([type]),
+    textarea,
+    select {
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, .03);
+      border: 1px solid rgba(148, 163, 184, .2);
+      color: var(--txt);
+      outline: none;
+      font-size: 15px;
+      transition: box-shadow .2s, border-color .2s, background .2s;
+    }
+
+    input::placeholder {
+      color: var(--muted)
+    }
+
+    textarea {
+      min-height: 110px;
+      font-family: var(--mono);
+      resize: none;
+    }
+
+    select {
+      padding: 10px 12px;
+    }
+
+    input:focus,
+    textarea:focus,
+    select:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 4px var(--ring);
+      background: rgba(255, 255, 255, .05)
+    }
+
+    .btn {
+      appearance: none;
+      border: none;
+      border-radius: 12px;
+      padding: 11px 14px;
+      background: linear-gradient(180deg, var(--primary), var(--primary-2));
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: var(--shadow);
+      transition: transform .06s ease-in-out, filter .2s;
+    }
+
+    .btn:active {
+      transform: translateY(1px)
+    }
+
+    .btn.secondary {
+      background: transparent;
+      color: var(--primary-2);
+      border: 1px solid rgba(99, 102, 241, .35);
+    }
+
+    .note {
+      margin: 8px 0 0;
+      color: var(--warn);
+      font-size: 13px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(106, 166, 255, .12);
+      color: var(--primary-2);
+      border: 1px solid rgba(106, 166, 255, .25);
+      font-size: 13px;
+      margin: 8px 0 0;
+    }
+
+    pre {
+      margin: 0;
+      padding: 14px;
+      background: var(--code-bg);
+      border-radius: 12px;
+      overflow: auto;
+      border: 1px solid rgba(148, 163, 184, .16);
+      color: #d1e7ff;
+    }
+
+    code {
+      font-family: var(--mono);
+      font-size: 13px;
+    }
+
+    .code-actions {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+      margin: 0 0 10px;
+    }
+
+    .btn.small {
+      font-size: 12px;
+      padding: 2px 10px;
+      height: 28px;
+      line-height: 1.2;
+      border-radius: 10px;
+    }
+
+    pre#cmdBlock,
+    pre.cmd-wrap {
+      white-space: pre-wrap;
+      word-break: break-word;
+      overflow-wrap: anywhere;
+    }
+
+
+    .footer {
+      text-align: center;
+      color: var(--txt-dim);
+      margin: 24px 0 18px;
+      font-size: 14px;
+    }
+
+    .footer a {
+      color: var(--primary-2);
+      text-decoration: none;
+    }
+
+    .footer img {
+      width: 18px;
+      vertical-align: middle;
+      margin-right: 6px
+    }
+  </style>
 
   <script type="text/javascript">
     var ruleprefix31 = {
@@ -749,10 +1102,8 @@
       const prefix38 = hextet[0] * 0x1000000 + hextet[1] * 0x100 + ((hextet[2] & 0xfc00) >> 8);
       return { prefix31, prefix36, prefix38 };
     }
-
     function getPeeraddrByPrefix(hextet, preferFamily) {
       const { prefix31, prefix36, prefix38 } = makeKeys(hextet);
-
       if (preferFamily) {
         if (preferFamily === 36) return "2001:3b8:200:ff9::1";   // NURO (/36)
         if (preferFamily === '38_20') return "2001:380:a120::9";      // OCN (/38·psid6)
@@ -763,7 +1114,6 @@
           return null;
         }
       }
-
       if (prefix31 >= 0x24047a80 && prefix31 < 0x24047a84) return "2001:260:700:1::1:275"; // BIGLOBE
       if (prefix31 >= 0x24047a84 && prefix31 < 0x24047a88) return "2001:260:700:1::1:276"; // BIGLOBE
       if ((prefix31 >= 0x240b0010 && prefix31 < 0x240b0014) ||
@@ -780,7 +1130,6 @@
       if (peeraddr === "2001:380:a120::9") return "OCN";
       return "";
     }
-
     function getBaseTuple(family, keyNum, tempRule) {
       if (tempRule && tempRule.family === family && parseInt(tempRule.key, 16) === keyNum) {
         return tempRule.value.slice();
@@ -791,7 +1140,6 @@
       if (family === '38_20') return (ruleprefix38_20[keyNum] || []).slice();
       return [];
     }
-
     function selectFamily(hextet, preferFamily) {
       const { prefix31, prefix36, prefix38 } = makeKeys(hextet);
       if (preferFamily) {
@@ -806,7 +1154,6 @@
       if (ruleprefix38_20[prefix38]) return { family: '38_20', key: prefix38 };
       return null;
     }
-
     function computeResult(hextet, preferFamily, tempRule) {
       const { prefix31, prefix36, prefix38 } = makeKeys(hextet);
       const pick = selectFamily(hextet, preferFamily);
@@ -900,7 +1247,6 @@
         peeraddr, isp
       };
     }
-
     function renderResult(R) {
       document.getElementById("ipv4").value = (R.ipv4 || []).join(".");
       document.getElementById("port").value = R.ports || "";
@@ -926,19 +1272,16 @@
       document.getElementById("at-offset").textContent = R.offset || "";
 
       const ispDiv = document.getElementById("ispName");
-      if (ispDiv) ispDiv.textContent = R.isp ? ("ISP: " + R.isp) : "";
+      if (ispDiv) ispDiv.textContent = R.isp ? ("VNE: " + R.isp) : "";
     }
-
     function findCandidatesFromIPv6v4(hextet, ipv4) {
       const [a, b, c, d] = ipv4;
       const { prefix36, prefix38 } = makeKeys(hextet);
-
       const out = [];
-
       const d_plain = hextet[2] & 0x00ff;
       const d_ocn = ((hextet[2] & 0x003f) << 2) | ((hextet[3] & 0xc000) >> 14); // /38·psid6
 
-      // ---- /36: psid=8 offset=4 ----
+      // /36
       (function () {
         const c_extra4 = (hextet[2] & 0x0f00) >> 8;
         const cbase36 = c & 0xF0;
@@ -947,8 +1290,7 @@
           out.push({ family: 36, key: "0x" + prefix36.toString(16), value: [a, b, cbase36] });
         }
       })();
-
-      // ---- /38: psid=8 offset=4 ----
+      // /38
       (function () {
         const c_extra2 = (hextet[2] & 0x0300) >> 8;
         const cbase38 = c & 0xFC;
@@ -958,8 +1300,7 @@
           out.push({ family: 38, key: "0x" + key38.toString(16), value: [a, b, cbase38] });
         }
       })();
-
-      // ---- /31: psid=8 offset=4 ----
+      // /31
       (function () {
         const b_lsb = hextet[1] & 1;
         const c_must = (hextet[2] & 0xff00) >> 8;
@@ -969,8 +1310,7 @@
           out.push({ family: 31, key: "0x" + key31.toString(16), value: [a, (b & 0xFE)] });
         }
       })();
-
-      // ---- /38·psid6 (OCN)----
+      // /38 · psid6
       (function () {
         const c_extra4b = (hextet[2] & 0x03c0) >> 6;
         const cbase20 = c & 0xF0;
@@ -980,10 +1320,8 @@
           out.push({ family: '38_20', key: "0x" + key3820.toString(16), value: [a, b, cbase20] });
         }
       })();
-
       return out;
     }
-
     function clearFields() {
       document.getElementById("ipv4").value = "";
       document.getElementById("port").value = "";
@@ -1012,7 +1350,8 @@
 
     function calc() {
       const sel = document.getElementById('ispSelect');
-      if (sel) { sel.innerHTML = ''; sel.style.display = 'none'; sel.onchange = null; }
+      if (sel) { sel.innerHTML = ''; sel.classList.remove('show'); sel.onchange = null; }
+
       delete window.__ACTIVE_CANDS;
 
       const hextet = parsePrefixToHextets(document.getElementById("prefix").value);
@@ -1021,11 +1360,7 @@
       if (R.error) { alert(R.error); clearFields(); return; }
       renderResult(R);
     }
-
-    function __applyCandidate(cand) {
-      renderResult(cand.result);
-    }
-
+    function __applyCandidate(cand) { renderResult(cand.result); }
     function guessRule() {
       const hextet = parsePrefixToHextets(document.getElementById("prefix").value);
       if (!hextet) { alert("プレフィックスを認識できません。"); return; }
@@ -1035,13 +1370,11 @@
       const cands = findCandidatesFromIPv6v4(hextet, v4);
       const sel = document.getElementById("ispSelect");
       sel.innerHTML = "";
-
       if (cands.length === 0) {
-        sel.style.display = "none";
+        sel.classList.remove('show');
         alert("既知マッピング規則に一致しません。新しいプレフィックスに対応するにはルール拡張が必要です。Issue を提出して報告してください。");
         return;
       }
-
       const labeled = cands.map(c => {
         const R = computeResult(hextet, c.family, c);
         const isp = ispByPeeraddr(R.peeraddr) || "Unknown";
@@ -1055,98 +1388,133 @@
         opt.textContent = cand.label;
         sel.appendChild(opt);
       });
-      sel.style.display = (labeled.length > 1) ? "" : "none";
 
-      sel.onchange = function () {
-        const idx = parseInt(sel.value, 10);
-        __applyCandidate(labeled[idx]);
-      };
-
+      sel.onchange = function () { const idx = parseInt(sel.value, 10); __applyCandidate(labeled[idx]); };
+      sel.classList.add('show');
       __applyCandidate(labeled[0]);
     }
-
     window.calc = calc;
     window.guessRule = guessRule;
     /*
-    document.addEventListener("DOMContentLoaded", function() {
-        document.getElementById("at-mapversion").textContent = "{draft|rfc}";
-        document.getElementById("at-ip4prefix").textContent = "A.B.C.D/M";
-        document.getElementById("at-ip6prefix").textContent = "X:X::X:X/M";
-        document.getElementById("at-ealen").textContent = "<0-48>";
-        document.getElementById("at-psidlen").textContent = "<0-15>";
-        document.getElementById("at-psid").textContent = "VALUE";
-        document.getElementById("at-offset").textContent = "<0-16>";
-      });
-     */
+document.addEventListener("DOMContentLoaded", function() {
+    document.getElementById("at-mapversion").textContent = "{draft|rfc}";
+    document.getElementById("at-ip4prefix").textContent = "A.B.C.D/M";
+    document.getElementById("at-ip6prefix").textContent = "X:X::X:X/M";
+    document.getElementById("at-ealen").textContent = "<0-48>";
+    document.getElementById("at-psidlen").textContent = "<0-15>";
+    document.getElementById("at-psid").textContent = "VALUE";
+    document.getElementById("at-offset").textContent = "<0-16>";
+  });
+ */
   </script>
-
-
 </head>
 
 <body>
-  <noscript id="notice">JavaScript が必要です。</noscript>
+  <noscript>JavaScript が必要です。</noscript>
 
-  <form action="#notice" onsubmit="calc(); return false;">
-    <label for="prefix">IPv6 プレフィックスかアドレスを入力:</label>
-    <input id="prefix" size="42" placeholder="114:514:1919:810::">
-    <input type="submit" value="計算">
-  </form>
+  <div class="container">
+    <header>
+      <div class="title">
+        <div class="logo" aria-hidden="true">M</div>
+        <div>
+          <h1>MAP-E カルキュレーター</h1>
+          <p class="subtitle">IPv6 プレフィックスから CE / IPv4 / ポート番号範囲などを計算</p>
+        </div>
+      </div>
+    </header>
 
-  <ul>
-    <li>
-      <label for="ce">CE:</label>
-      <input id="ce" size="39" readonly="readonly">
-    </li>
-    <li>
-      <label for="ipv4">IPv4 アドレス:</label>
-      <input id="ipv4" placeholder="例: 11.4.5.14">
-      <button type="button" id="guessBtn" onclick="guessRule()"
-        title="既知マッピング規則に該当がない場合、IPv6 プレフィックスとWAN IPv4 アドレスから対応規則を推測します[Beta])">
-        推測(Beta)
-      </button>
-      <select id="ispSelect" style="display:none; margin-left:6px"></select>
-    </li>
-    <li>
-      <label for="port">ポート番号:</label>
-      <textarea id="port" cols="36" rows="5" readonly="readonly"></textarea>
-    </li>
-    <li>
-      <label for="psid">PSID:</label>
-      <input id="psid" size="3" readonly="readonly">(10進)
-    </li>
-  </ul>
+    <div class="grid">
+      <!-- ===== Inputs ===== -->
+      <section class="card inputs">
+        <h2>入力</h2>
+        <form action="#!" onsubmit="calc(); return false;">
+          <div class="field">
+            <label for="prefix">IPv6 プレフィックスかアドレス</label>
+            <div class="row">
+              <input id="prefix" class="grow" placeholder="114:514:1919:810::" />
+              <button class="btn" type="submit">計算</button>
+            </div>
+          </div>
 
-  <hr>
-  <p>注: 本当の値とは違う場合があります。</p>
-  <div id="ispName" style="margin:6px 0;color:#333;font-weight:bold;"></div>
-  <pre><code><span id="peeraddr"></span>option ipaddr <span id="ipaddr"></span>
+          <div class="field">
+            <label for="ipv4">IPv4 アドレス</label>
+            <div class="row">
+              <input id="ipv4" class="grow" placeholder="例: 11.4.5.14" />
+              <div class="ispwrap" id="ispWrap">
+                <button class="btn secondary" id="guessBtn" type="button" onclick="guessRule()"
+                  title="IPv6 と WAN IPv4 から規則を推測 [Beta]">推測(Beta)</button>
+                <select id="ispSelect" aria-label="推定 VNE" title="推定 VNE"></select>
+              </div>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="ce">CE</label>
+            <input id="ce" readonly />
+          </div>
+
+          <div class="field">
+            <label for="port">ポート番号</label>
+            <textarea id="port" readonly></textarea>
+          </div>
+
+          <div class="field">
+            <label for="psid">PSID（10進）</label>
+            <div class="row">
+              <input id="psid" size="3" readonly style="max-width:140px" />
+            </div>
+          </div>
+          <div style="margin-top:6px;">
+            <span class="pill" id="ispName" title="推定 VNE">VNE: —</span>
+          </div>
+        </form>
+      </section>
+
+      <!-- ===== Results ===== -->
+      <section class="card results">
+        <h2 style="display:flex;justify-content:space-between;align-items:center;gap:12px;">
+          計算結果
+          <span style="font-size:0.9rem;color:#f59e0b;font-weight:400;white-space:nowrap;">
+            注: 本当の値とは違う場合があります。
+          </span>
+        </h2>
+
+        <div class="code-actions" style="display:flex;justify-content:flex-end;margin:8px 0 6px">
+          <button class="btn secondary small" type="button"
+            onclick="navigator.clipboard?.writeText(document.getElementById('cmdBlock1').innerText)">コピー</button>
+        </div>
+        <pre id="cmdBlock1"><code><span id="peeraddr"></span>option ipaddr <span id="ipaddr"></span>
 option ip4prefixlen <span id="ip4prefixlen"></span>
 option ip6prefix <span id="ip6prefix"></span>
 option ip6prefixlen <span id="ip6prefixlen"></span>
 option ealen <span id="ealen"></span>
 option psidlen <span id="psidlen"></span>
-option offset <span id="offset"></span></code></pre>
+option offset <span id="offset"></span>
 
-  <pre><code><span id="hash">#</span>export LEGACY=1</code></pre>
+<span id="hash">#</span>export LEGACY=1</code></pre>
 
-  <div class="at">
-    <hr>
-    <p class='syntax'>
-      <code><span style="color:DarkBlue">(config-softwire)#</span> <strong>map-version <span id="at-mapversion"></span></strong></code>
+        <h2 style="margin-top:18px">アライドテレシス Router 設定スニペット</h2>
+        <div class="code-actions" style="display:flex;justify-content:flex-end;margin:8px 0 6px">
+          <button class="btn secondary small" type="button"
+            onclick="navigator.clipboard?.writeText(document.getElementById('cmdBlock2').innerText)">コピー</button>
+        </div>
+        <pre id="cmdBlock2" style="white-space:pre-wrap;word-break:break-all;"><code>
+<span style="color:#95b3ff">(config-softwire)#</span> <strong>map-version <span id="at-mapversion"></span></strong>
+<span style="color:#95b3ff">(config-softwire)#</span> <strong>rule &lt;0-65535&gt; ipv4-prefix <span id="at-ip4prefix"></span> ipv6-prefix <span id="at-ip6prefix"></span></strong> [ea-length <span id="at-ealen"></span>|psid-length <span id="at-psidlen"></span> [psid <span id="at-psid" style="color:#86efac"></span>]] [offset <span id="at-offset"></span>] [forwarding]
+</code></pre>
+      </section>
+
+
+    </div>
+
+    <p class="footer">
+      <a href="https://github.com/missing233/map-e" target="_blank">
+        <img src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" alt="GitHub">GitHub
+      </a>
+      &nbsp;|&nbsp;
+      <a href="https://missing233.com/" target="_blank">HP</a>
     </p>
-    <p class='syntax'>
-      <code><span style="color:DarkBlue">(config-softwire)#</span> <strong>rule <span style="color:blue">&lt;0-65535&gt;</span> ipv4-prefix <span id="at-ip4prefix" style="color:blue"></span> ipv6-prefix <span id="at-ip6prefix" style="color:blue"></span> </strong>[ea-length <span id="at-ealen" style="color:blue"></span>|psid-length <span id="at-psidlen" style="color:blue"></span> [psid <span id="at-psid" style="color:teal"></span>]]<strong> </strong>[offset <span id="at-offset" style="color:blue"></span>]<strong> </strong>[forwarding]</code>
-    </p>
-    <hr>
   </div>
-
-  <p>
-    <a href="https://github.com/missing233/map-e" target="_blank" style="text-decoration: none;">
-      <img src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" alt="GitHub"
-        style="width:20px; vertical-align:middle; margin-right:5px;">GitHub
-    </a> |
-    <a href="https://missing233.com/" target="_blank" style="text-decoration: none;">HP</a>
-  </p>
   <!-- <hr>
         <pre>The length of the PSID bit field within EA bits is: o - p
     = (EA-bits length) - (IPv4 suffix bits)
