@@ -1098,7 +1098,7 @@
     }
     function makeKeys(hextet) {
       const prefix31 = hextet[0] * 0x10000 + (hextet[1] & 0xfffe);
-      const prefix36 = hextet[0] * 0x1000000 + hextet[1] * 0x100 + ((hextet[2] & 0xff00) >> 4);
+      const prefix36 = hextet[0] * 0x1000000 + hextet[1] * 0x100 + ((hextet[2] & 0xf000) >> 8);
       const prefix38 = hextet[0] * 0x1000000 + hextet[1] * 0x100 + ((hextet[2] & 0xfc00) >> 8);
       return { prefix31, prefix36, prefix38 };
     }
